@@ -1,107 +1,96 @@
+'use strict';
+
 require('dotenv').config({ path: './variables.env' });
 const connectToDatabase = require('./db');
 const Note = require('./models/Note');
-
-'use strict';
+const Location = require('./models/Location');
 
 module.exports.hello = (event, context, callback) => {
-  const response = {
-    statusCode: 200,
-    body: JSON.stringify({
-      message: 'Go Serverless v1.0! Your function executed successfully!',
-      input: event,
-    }),
-  };
-
-  callback(null, response);
-
-  // Use this code if you don't use the http event with the LAMBDA-PROXY integration
-  // callback(null, { message: 'Go Serverless v1.0! Your function executed successfully!', event });
+    const response = { statusCode: 200, body: 'Go Serverless!' };
+    callback(null, response);
 };
 
 module.exports.create = (event, context, callback) => {
-    context.callbackWaitsForEmptyEventLoop = false;
-    connectToDatabase()
-        .then(() => {
-            Note.create(JSON.parse(event.body))
-                .then(note => callback(null, {
-                    statusCode: 200,
-                    body: JSON.stringify(note)
-                }))
-                .catch(err => callback(null, {
-                    statusCode: err.statusCode || 500,
-                    headers: { 'Content-Type': 'text/plain' },
-                    body: 'Bummer, could not create the note :('
-                }));
-        });
+  context.callbackWaitsForEmptyEventLoop = false;
+  return connectToDatabase()
+    .then(() =>
+      Note.create(JSON.parse(event.body))
+    )
+    .then(note => callback(null, {
+      statusCode: 200,
+      body: JSON.stringify(note)
+    }))
+    .catch(err => callback(null, {
+      statusCode: err.statusCode || 500,
+      headers: { 'Content-Type': 'text/plain' },
+      body: 'Could not create the note.'
+    }));
 };
 
 module.exports.getOne = (event, context, callback) => {
-    context.callbackWaitsForEmptyEventLoop = false;
-    connectToDatabase()
-        .then(() => {
-            Note.findById(event.pathParameters.id)
-                .then(note => callback(null, {
-                    statusCode: 200,
-                    body: JSON.stringify(note)
-                }))
-                .catch(err => callback(null, {
-                    statusCode: err.statusCode || 500,
-                    header: { 'Content-Type': 'text/plain' },
-                    body: 'Uh oh, couldn\'t fetch the note.'
-                }));
-        });
+  context.callbackWaitsForEmptyEventLoop = false;
+  return connectToDatabase()
+    .then(() =>
+      Note.findById(event.pathParameters.id)
+    )
+    .then(note => callback(null, {
+      statusCode: 200,
+      body: JSON.stringify(note)
+    }))
+    .catch(err => callback(null, {
+      statusCode: err.statusCode || 500,
+      headers: { 'Content-Type': 'text/plain' },
+      body: 'Could not fetch the note.'
+    }));
 };
 
 module.exports.getAll = (event, context, callback) => {
   context.callbackWaitsForEmptyEventLoop = false;
-
-  connectToDatabase()
-    .then(() => {
+  return connectToDatabase()
+    .then(() =>
       Note.find()
-        .then(notes => callback(null, {
-          statusCode: 200,
-          body: JSON.stringify(notes)
-        }))
-        .catch(err => callback(null, {
-          statusCode: err.statusCode || 500,
-          headers: { 'Content-Type': 'text/plain' },
-          body: 'Had a hard time finding all the note.'
-        }))
-    });
+    )
+    .then(notes => callback(null, {
+      statusCode: 200,
+      body: JSON.stringify(notes)
+    }))
+    .catch(err => callback(null, {
+      statusCode: err.statusCode || 500,
+      headers: { 'Content-Type': 'text/plain' },
+      body: 'Could not fetch the notes.'
+    }))
 };
 
 module.exports.update = (event, context, callback) => {
   context.callbackWaitsForEmptyEventLoop = false;
-
-  connectToDatabase()
-    .then(() => {
+  return connectToDatabase()
+    .then(() =>
       Note.findByIdAndUpdate(event.pathParameters.id, JSON.parse(event.body), { new: true })
-        .then(note => callback(null, {
-          statusCode: 200,
-          body: JSON.stringify(note)
-        }))
-        .catch(err => callback(null, {
-          statusCode: err.statusCode || 500,
-          headers: { 'Content-Type': 'text/plain' },
-          body: 'Uh oh, couldn\'t fetch the notes.'
-        }));
-    });
+    )
+    .then(note => callback(null, {
+      statusCode: 200,
+      body: JSON.stringify(note)
+    }))
+    .catch(err => callback(null, {
+      statusCode: err.statusCode || 500,
+      headers: { 'Content-Type': 'text/plain' },
+      body: 'Could not fetch the notes.'
+    }));
 };
 
 module.exports.delete = (event, context, callback) => {
   context.callbackWaitsForEmptyEventLoop = false;
-
-  connectToDatabase()
-    .then(() => {
+  return connectToDatabase()
+    .then(() =>
       Note.findByIdAndRemove(event.pathParameters.id)
-        .then(note => callback(null, {
-          statusCode: 200,
-          body: JSON.stringify({ message: 'Removed note with id: ' + note._id, note: note })
-        }))
-        .catch(err => callback(null, {
-          statusCode: err.statusCode || 500,
-          headers: { 'Content-Type': 'text/plain' },
-          body: 'Uh oh, couldn\'t fetch the notes.'
-        }));
-    });
+    )
+    .then(note => callback(null, {
+      statusCode: 200,
+      body: JSON.stringify({ message: 'Removed note with id: ' + note._id, note: note })
+    }))
+    .catch(err => callback(null, {
+      statusCode: err.statusCode || 500,
+      headers: { 'Content-Type': 'text/plain' },
+      body: 'Could not fetch the notes.'
+    }));
+};

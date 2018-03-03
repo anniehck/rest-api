@@ -28,6 +28,10 @@ provider:
 functions:
     hello:
       handler: handler.hello
+      events:
+          - http:
+              path: hello/get
+              method: get
     create:
       handler: handler.create
       events:
@@ -65,7 +69,7 @@ functions:
                 cors: true
 
 plugins:
-    - serverless-offline
+- serverless-offline
 
 #    The following are a few example events you can configure
 #    NOTE: Please make sure to change your handler code to work with those events
